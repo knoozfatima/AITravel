@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,8 +32,8 @@ const TravelPlanner = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [travelPlan, setTravelPlan] = useState<string | null>(null);
 
-  // Using the provided API key directly
-  const apiKey = 'AIzaSyCI-7LdZaGTHP5QrTEInsf0OitWAr8Ej7g';
+  // Updated API key
+  const apiKey = 'AIzaSyDazDS4IRgC97caSXe31hCGc3UCN3f6ifg';
 
   const handleInputChange = (field: keyof TravelInputs, value: string | number) => {
     setInputs(prev => ({
