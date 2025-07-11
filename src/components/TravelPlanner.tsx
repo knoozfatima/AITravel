@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Calendar, MapPin, Users, DollarSign, Heart, Plane, Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { generateTravelPlan } from '@/utils/geminiApi';
@@ -32,6 +33,7 @@ const TravelPlanner = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [travelPlan, setTravelPlan] = useState<string | null>(null);
+  const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
 
@@ -45,15 +47,6 @@ const TravelPlanner = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!apiKey.trim()) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your Gemini API key to generate travel plans.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!inputs.source || !inputs.destination || !inputs.startDate || !inputs.endDate) {
       toast({
         title: "Missing Information",
@@ -63,6 +56,21 @@ const TravelPlanner = () => {
       return;
     }
 
+    // Show API key dialog
+    setShowApiKeyDialog(true);
+  };
+
+  const handleApiKeySubmit = async () => {
+    if (!apiKey.trim()) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your Gemini API key to generate travel plans.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setShowApiKeyDialog(false);
     setIsLoading(true);
     
     try {
@@ -114,43 +122,6 @@ const TravelPlanner = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* API Key Section */}
-                <div className="p-4 bg-muted/50 rounded-lg border">
-                  <div className="space-y-3">
-                    <Label htmlFor="apiKey" className="text-sm font-medium">Gemini API Key</Label>
-                    <div className="relative">
-                      <Input
-                        id="apiKey"
-                        type={showApiKey ? "text" : "password"}
-                        placeholder="Enter your Gemini API key"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        className="pr-10"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                        onClick={() => setShowApiKey(!showApiKey)}
-                      >
-                        {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Get your free API key from{' '}
-                      <a 
-                        href="https://makersuite.google.com/app/apikey" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline font-medium"
-                      >
-                        Google AI Studio
-                      </a>
-                    </p>
-                  </div>
-                </div>
-
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Location Inputs */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -328,6 +299,54 @@ const TravelPlanner = () => {
           </div>
         </div>
       </div>
+
+      {/* API Key Dialog */}
+      <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Enter Gemini API Key</DialogTitle>
+            <DialogDescription>
+              Please enter your Gemini API key to generate your travel plan. You can get a free API key from{' '}
+              <a 
+                href="https://makersuite.google.com/app/apikey" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
+                Google AI Studio
+              </a>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Input
+                type={showApiKey ? "text" : "password"}
+                placeholder="Enter your Gemini API key"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                onClick={() => setShowApiKey(!showApiKey)}
+              >
+                {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </Button>
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <Button type="button" variant="secondary" onClick={() => setShowApiKeyDialog(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleApiKeySubmit}>
+              Generate Plan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
